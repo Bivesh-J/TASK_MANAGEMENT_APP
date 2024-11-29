@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: blue;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: black;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background: blue;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: blue;
+        }
+        .filter {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            background: white;
+            border: 1px solid white;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-info {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .update {
+            background: black;
+        }
+        .update:hover {
+            background: black;
+        }
+        .delete {
+            background: black;
+        }
+        .delete:hover {
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Management App</h1>
+
+        <!-- Form to add or update a task -->
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="title">Task Title</label>
+                <input type="text" id="title" placeholder="Enter the title of the task" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Task Description</label>
+                <textarea id="description" placeholder="Enter the task description" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="status">Task Status</label>
+                <select id="status" required>
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <!-- Filter tasks -->
+        <div class="filter">
+            <label for="filter">Filter by Status:</label>
+            <select id="filter">
+                <option value="All">All</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <!-- Task list -->
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        const taskForm = document.getElementById('taskForm');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const statusInput = document.getElementById('status');
+        const filterInput = document.getElementById('filter');
+        const taskList = document.getElementById('taskList');
+
+        let tasks = [];
+        let editingTaskIndex = null;
+
+        // Function to render tasks
+        function renderTasks() {
+            const filterValue = filterInput.value;
+            taskList.innerHTML = '';
+            tasks
+                .filter(task => filterValue === 'All' || task.status === filterValue)
+                .forEach((task, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div class="task-info">
+                            <strong>${task.title}</strong>
+                            <p>${task.description}</p>
+                            <small>Status: ${task.status}</small>
+                        </div>
+                        <div class="buttons">
+                            <button class="update" onclick="editTask(${index})">Edit</button>
+                            <button class="delete" onclick="deleteTask(${index})">Delete</button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+                });
+        }
+
+        // Function to add or update a task
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+            const status = statusInput.value;
+
+            if (editingTaskIndex !== null) {
+                tasks[editingTaskIndex] = { title, description, status };
+                editingTaskIndex = null;
+            } else {
+                tasks.push({ title, description, status });
+            }
+
+            taskForm.reset();
+            renderTasks();
+        });
+
+        // Function to edit a task
+        function editTask(index) {
+            const task = tasks[index];
+            titleInput.value = task.title;
+            descriptionInput.value = task.description;
+            statusInput.value = task.status;
+            editingTaskIndex = index;
+        }
+
+        // Function to delete a task
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        // Function to handle filtering
+        filterInput.addEventListener('change', renderTasks);
+    </script>
+</body>
+</html>
